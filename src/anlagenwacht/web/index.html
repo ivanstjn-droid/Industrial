@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anlagenwacht</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --ink:#1c2430; --muted:#5b6675; --line:#dde2e8; --accent:#0b6bcb; --alarm:#c62828; --bar:#7aa7d8; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#12161c; --card:#1b212a; --ink:#e6eaf0; --muted:#9aa5b4; --line:#2c3440; --accent:#5aa9ff; --alarm:#ff6b6b; --bar:#3f6fa3; } }
+  * { box-sizing:border-box; }
+  body { margin:0; font:15px/1.5 system-ui, sans-serif; background:var(--bg); color:var(--ink); }
+  header { padding:14px 16px; border-bottom:1px solid var(--line); display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+  h1 { font-size:18px; margin:0; }
+  main { display:grid; grid-template-columns: 320px 1fr; gap:16px; padding:16px; }
+  @media (max-width: 800px) { main { grid-template-columns: 1fr; } }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:12px 14px; }
+  .muted { color:var(--muted); font-size:13px; }
+  .alarm { padding:8px; border-radius:6px; cursor:pointer; border:1px solid transparent; }
+  .alarm:hover, .alarm.sel { border-color:var(--accent); }
+  .row { display:grid; grid-template-columns: 1fr 70px; gap:8px; align-items:center; margin:4px 0; font-size:13px; }
+  .bar { height:10px; background:var(--bar); border-radius:3px; }
+  svg { width:100%; height:120px; display:block; }
+  button, select { font:inherit; padding:6px 10px; border-radius:6px; border:1px solid var(--line); background:var(--card); color:var(--ink); }
+  button.primary { background:var(--accent); color:#fff; border-color:var(--accent); cursor:pointer; }
+  #report { white-space:pre-wrap; font-size:14px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Anlagenwacht</h1>
+  <select id="plant"></select>
+  <span id="summary" class="muted"></span>
+</header>
+<main>
+  <section class="card">
+    <h3 style="margin-top:0">Alarme</h3>
+    <div id="alarms" class="muted">Lade…</div>
+  </section>
+  <section>
+    <div class="card">
+      <div class="muted">Anomalie-Score (1 = Grenzwert), rot = Alarm</div>
+      <svg id="chart" preserveAspectRatio="none"></svg>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h3 style="margin-top:0" id="dtitle">Alarm auswählen</h3>
+      <div id="detail"></div>
+      <p><button class="primary" id="inv" hidden>Ursache untersuchen</button></p>
+      <div id="report"></div>
+    </div>
+  </section>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let pid, aid;
+async function j(url, opt) { const r = await fetch(url, opt); if (!r.ok) throw new Error(await r.text()); return r.json(); }
+
+async function loadPlants() {
+  const list = await j('/api/plants');
+  $('plant').innerHTML = list.map(p => `<option>${esc(p)}</option>`).join('');
+  $('plant').onchange = () => loadPlant($('plant').value);
+  loadPlant(list[0]);
+}
+
+async function loadPlant(p) {
+  pid = p; aid = null; $('detail').innerHTML = ''; $('report').textContent = ''; $('inv').hidden = true;
+  $('alarms').textContent = 'Lade…';
+  const [s, sc, al] = await Promise.all([j(`/api/plants/${p}`), j(`/api/plants/${p}/scores`), j(`/api/plants/${p}/alarms`)]);
+  $('summary').textContent = `${s.anlage} · ${s.samples} Messpunkte · ${s.alarme} Alarme`;
+  drawChart(sc);
+  $('alarms').innerHTML = al.length ? al.map(a => `<div class="alarm" data-id="${a.id}">
+      <b>#${a.id}</b> ${esc(a.start.slice(5,16))} · ${a.n_samples} Pkt · max ${a.peak_score}×<br>
+      <span class="muted">${a.top_tags.slice(0,3).map(t => esc(t.tag)).join(', ')}</span></div>`).join('') : 'Keine Alarme.';
+  document.querySelectorAll('.alarm').forEach(el => el.onclick = () => loadAlarm(+el.dataset.id));
+}
+
+function drawChart(sc) {
+  const w = 1000, h = 120, max = Math.max(3, ...sc.map(d => Math.min(d.score, 20)));
+  const y = v => h - Math.min(v, 20) / max * (h - 6);
+  const pts = sc.map((d, i) => `${i / (sc.length - 1) * w},${y(d.score)}`).join(' ');
+  const alarms = sc.map((d, i) => d.alarm ? `<rect x="${i / (sc.length - 1) * w}" y="0" width="${w / sc.length + 1}" height="${h}" fill="var(--alarm)" opacity=".15"/>` : '').join('');
+  $('chart').setAttribute('viewBox', `0 0 ${w} ${h}`);
+  $('chart').innerHTML = `${alarms}<line x1="0" x2="${w}" y1="${y(1)}" y2="${y(1)}" stroke="var(--muted)" stroke-dasharray="4 4"/>
+    <polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="1.5" vector-effect="non-scaling-stroke"/>`;
+}
+
+async function loadAlarm(id) {
+  aid = id; $('report').textContent = '';
+  document.querySelectorAll('.alarm').forEach(el => el.classList.toggle('sel', +el.dataset.id === id));
+  const d = await j(`/api/plants/${pid}/alarms/${id}`);
+  $('dtitle').textContent = `Alarm #${id} · ${d.start.slice(0,16)} – ${d.end.slice(11,16)} · dominant ${d.dominant_statistic}`;
+  const maxShare = Math.max(...d.verdaechtige_tags.map(s => s.anteil));
+  $('detail').innerHTML = '<div class="muted">Verdächtige Tags (Beitrag zu Beginn des Alarms)</div>' +
+    d.verdaechtige_tags.map(s => `<div class="row"><div><b>${esc(s.tag)}</b> ${esc(s.beschreibung)}
+      <span class="muted">(Ø ${s.abweichung_sigma > 0 ? '+' : ''}${s.abweichung_sigma} σ, Beginn max ${s.max_abweichung_beginn_sigma} σ)</span>
+      <div class="bar" style="width:${s.anteil / maxShare * 100}%"></div></div><div>${(s.anteil * 100).toFixed(0)} %</div></div>`).join('') +
+    (d.energie ? `<p class="muted">Mehrverbrauch ggü. Physikmodell: ${d.energie.mehrverbrauch_w} W</p>` : '');
+  $('inv').hidden = false;
+}
+
+$('inv').onclick = async () => {
+  $('report').textContent = 'Untersuche…';
+  const r = await j(`/api/plants/${pid}/alarms/${aid}/investigate`, { method: 'POST' });
+  $('report').textContent = (r.mode === 'claude' ? '' : '[Regelbasiert] ') + r.report;
+};
+loadPlants().catch(e => $('alarms').textContent = 'Fehler: ' + e.message);
+</script>
+</body>
+</html>

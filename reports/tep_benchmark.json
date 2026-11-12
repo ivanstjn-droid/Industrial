@@ -1,0 +1,251 @@
+{
+  "dataset": "Tennessee Eastman (Braatz)",
+  "config": {
+    "var_explained": 0.9,
+    "alpha": 0.99,
+    "persistence": 3,
+    "n_components": 31
+  },
+  "false_alarm_rate_normal_test": 0.034,
+  "mean_detection_rate_excl_3_9_15": 0.802,
+  "rca_hit_at_5": "7/8",
+  "faults": [
+    {
+      "fault": 1,
+      "beschreibung": "A/C-Zulaufverhältnis, B-Anteil konstant (Sprung)",
+      "detection_rate": 0.996,
+      "false_alarm_rate_prefault": 0.006,
+      "detection_delay_min": 9,
+      "rca_top5": [
+        "XMEAS16",
+        "XMEAS20",
+        "XMEAS7",
+        "XMEAS13",
+        "XMV9"
+      ],
+      "rca_hit": false
+    },
+    {
+      "fault": 2,
+      "beschreibung": "B-Anteil, A/C-Verhältnis konstant (Sprung)",
+      "detection_rate": 0.988,
+      "false_alarm_rate_prefault": 0.019,
+      "detection_delay_min": 30,
+      "rca_top5": [
+        "XMEAS30",
+        "XMEAS10",
+        "XMV6",
+        "XMEAS24",
+        "XMEAS16"
+      ],
+      "rca_hit": true
+    },
+    {
+      "fault": 3,
+      "beschreibung": "D-Zulauftemperatur (Sprung)",
+      "detection_rate": 0.039,
+      "false_alarm_rate_prefault": 0.044,
+      "detection_delay_min": 9,
+      "rca_top5": null,
+      "rca_hit": null
+    },
+    {
+      "fault": 4,
+      "beschreibung": "Reaktor-Kühlwasser-Eintrittstemperatur (Sprung)",
+      "detection_rate": 0.998,
+      "false_alarm_rate_prefault": 0.013,
+      "detection_delay_min": 6,
+      "rca_top5": [
+        "XMV10",
+        "XMEAS9",
+        "XMEAS41",
+        "XMV7",
+        "XMEAS12"
+      ],
+      "rca_hit": true
+    },
+    {
+      "fault": 5,
+      "beschreibung": "Kondensator-Kühlwasser-Eintrittstemperatur (Sprung)",
+      "detection_rate": 0.29,
+      "false_alarm_rate_prefault": 0.013,
+      "detection_delay_min": 6,
+      "rca_top5": [
+        "XMEAS18",
+        "XMEAS17",
+        "XMEAS11",
+        "XMEAS4",
+        "XMEAS19"
+      ],
+      "rca_hit": true
+    },
+    {
+      "fault": 6,
+      "beschreibung": "Verlust A-Zulauf (Sprung)",
+      "detection_rate": 0.998,
+      "false_alarm_rate_prefault": 0.006,
+      "detection_delay_min": 6,
+      "rca_top5": [
+        "XMV3",
+        "XMEAS1",
+        "XMEAS20",
+        "XMV5",
+        "XMEAS16"
+      ],
+      "rca_hit": true
+    },
+    {
+      "fault": 7,
+      "beschreibung": "C-Sammelleitung Druckverlust (Sprung)",
+      "detection_rate": 0.998,
+      "false_alarm_rate_prefault": 0.0,
+      "detection_delay_min": 6,
+      "rca_top5": [
+        "XMEAS7",
+        "XMEAS16",
+        "XMEAS13",
+        "XMV4",
+        "XMEAS20"
+      ],
+      "rca_hit": true
+    },
+    {
+      "fault": 8,
+      "beschreibung": "A,B,C-Zulaufzusammensetzung (zufällig)",
+      "detection_rate": 0.979,
+      "false_alarm_rate_prefault": 0.006,
+      "detection_delay_min": 51,
+      "rca_top5": null,
+      "rca_hit": null
+    },
+    {
+      "fault": 9,
+      "beschreibung": "D-Zulauftemperatur (zufällig)",
+      "detection_rate": 0.034,
+      "false_alarm_rate_prefault": 0.05,
+      "detection_delay_min": 12,
+      "rca_top5": null,
+      "rca_hit": null
+    },
+    {
+      "fault": 10,
+      "beschreibung": "C-Zulauftemperatur (zufällig)",
+      "detection_rate": 0.649,
+      "false_alarm_rate_prefault": 0.013,
+      "detection_delay_min": 0,
+      "rca_top5": null,
+      "rca_hit": null
+    },
+    {
+      "fault": 11,
+      "beschreibung": "Reaktor-Kühlwasser-Eintrittstemperatur (zufällig)",
+      "detection_rate": 0.739,
+      "false_alarm_rate_prefault": 0.037,
+      "detection_delay_min": 21,
+      "rca_top5": [
+        "XMV10",
+        "XMEAS9",
+        "XMEAS21",
+        "XMEAS16",
+        "XMEAS31"
+      ],
+      "rca_hit": true
+    },
+    {
+      "fault": 12,
+      "beschreibung": "Kondensator-Kühlwasser-Eintrittstemperatur (zufällig)",
+      "detection_rate": 0.989,
+      "false_alarm_rate_prefault": 0.013,
+      "detection_delay_min": 12,
+      "rca_top5": null,
+      "rca_hit": null
+    },
+    {
+      "fault": 13,
+      "beschreibung": "Reaktionskinetik (langsame Drift)",
+      "detection_rate": 0.953,
+      "false_alarm_rate_prefault": 0.006,
+      "detection_delay_min": 114,
+      "rca_top5": null,
+      "rca_hit": null
+    },
+    {
+      "fault": 14,
+      "beschreibung": "Reaktor-Kühlwasserventil (Klemmen)",
+      "detection_rate": 0.999,
+      "false_alarm_rate_prefault": 0.006,
+      "detection_delay_min": 3,
+      "rca_top5": [
+        "XMEAS21",
+        "XMV10",
+        "XMEAS9",
+        "XMEAS2",
+        "XMV1"
+      ],
+      "rca_hit": true
+    },
+    {
+      "fault": 15,
+      "beschreibung": "Kondensator-Kühlwasserventil (Klemmen)",
+      "detection_rate": 0.087,
+      "false_alarm_rate_prefault": 0.0,
+      "detection_delay_min": 279,
+      "rca_top5": null,
+      "rca_hit": null
+    },
+    {
+      "fault": 16,
+      "beschreibung": "Unbekannt",
+      "detection_rate": 0.591,
+      "false_alarm_rate_prefault": 0.019,
+      "detection_delay_min": 48,
+      "rca_top5": null,
+      "rca_hit": null
+    },
+    {
+      "fault": 17,
+      "beschreibung": "Unbekannt",
+      "detection_rate": 0.965,
+      "false_alarm_rate_prefault": 0.037,
+      "detection_delay_min": 57,
+      "rca_top5": null,
+      "rca_hit": null
+    },
+    {
+      "fault": 18,
+      "beschreibung": "Unbekannt",
+      "detection_rate": 0.9,
+      "false_alarm_rate_prefault": 0.013,
+      "detection_delay_min": 231,
+      "rca_top5": null,
+      "rca_hit": null
+    },
+    {
+      "fault": 19,
+      "beschreibung": "Unbekannt",
+      "detection_rate": 0.214,
+      "false_alarm_rate_prefault": 0.006,
+      "detection_delay_min": 30,
+      "rca_top5": null,
+      "rca_hit": null
+    },
+    {
+      "fault": 20,
+      "beschreibung": "Unbekannt",
+      "detection_rate": 0.635,
+      "false_alarm_rate_prefault": 0.0,
+      "detection_delay_min": 246,
+      "rca_top5": null,
+      "rca_hit": null
+    },
+    {
+      "fault": 21,
+      "beschreibung": "Ventil Strom 4 in Ruhelage fixiert",
+      "detection_rate": 0.564,
+      "false_alarm_rate_prefault": 0.037,
+      "detection_delay_min": 0,
+      "rca_top5": null,
+      "rca_hit": null
+    }
+  ]
+}
