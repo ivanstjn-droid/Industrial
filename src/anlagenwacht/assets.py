@@ -153,3 +153,61 @@ def skab_asset_model() -> AssetModel:
     ]:
         model.add(Tag(tid, desc, unit, "energy", kind="derived"))
     return model
+
+
+# ---------------------------------------------------------------- maritime
+def naval_gt_asset_model() -> AssetModel:
+    """Frigate gas-turbine propulsion (UCI CBM). Monitored values are deviations from
+    what a healthy plant reads at the same speed."""
+    model = AssetModel(
+        name="Naval gas-turbine propulsion (CODLAG frigate, simulator)",
+        assets={
+            "compressor": "Gas-turbine compressor",
+            "turbine": "HP / power turbine and exhaust",
+            "fuel_system": "Fuel injection and fuel flow",
+            "shafting": "Gearbox, shafts and propellers",
+        },
+    )
+    note = " (vs. expected at current speed)"
+    for tid, desc, unit, asset in [
+        ("T2", "Compressor outlet air temperature", "°C", "compressor"),
+        ("P2", "Compressor outlet air pressure", "bar", "compressor"),
+        ("GGn", "Gas generator speed", "rpm", "compressor"),
+        ("T48", "HP turbine exit temperature", "°C", "turbine"),
+        ("P48", "HP turbine exit pressure", "bar", "turbine"),
+        ("Pexh", "Exhaust gas pressure", "bar", "turbine"),
+        ("GTT", "Gas turbine shaft torque", "kN·m", "turbine"),
+        ("GTn", "Gas turbine speed", "rpm", "turbine"),
+        ("TIC", "Turbine injection control", "%", "fuel_system"),
+        ("mf", "Fuel flow", "kg/s", "fuel_system"),
+        ("Ts", "Propeller torque", "kN", "shafting"),
+    ]:
+        model.add(Tag(tid, desc + note, unit, asset, kind="derived"))
+    return model
+
+
+def vessel_asset_model() -> AssetModel:
+    """Merchant vessel propulsion and central cooling (synthetic simulator)."""
+    model = AssetModel(
+        name="Merchant vessel – propulsion and central cooling (simulated)",
+        assets={
+            "propulsion": "Main engine and propeller",
+            "sea_water": "Sea-water pump, strainer and central cooler (SW side)",
+            "lt_circuit": "Low-temperature fresh-water circuit with 3-way valve",
+        },
+    )
+    note = " (vs. expected at current speed and sea temperature)"
+    for tid, desc, unit, asset, kind in [
+        ("ME_power", "Main engine shaft power", "kW", "propulsion", "measurement"),
+        ("ME_fuel", "Main engine fuel consumption", "t/h", "propulsion", "measurement"),
+        ("SW_flow", "Sea-water flow", "m³/h", "sea_water", "measurement"),
+        ("SW_press", "Sea-water pressure after strainer", "bar", "sea_water", "measurement"),
+        ("SW_pump_kw", "Sea-water pump power", "kW", "sea_water", "measurement"),
+        ("SW_cooler_out", "Sea-water outlet temperature, central cooler", "°C", "sea_water", "measurement"),
+        ("LT_valve", "LT 3-way valve position (to cooler)", "%", "lt_circuit", "manipulated"),
+        ("LT_supply", "LT supply temperature", "°C", "lt_circuit", "measurement"),
+        ("LT_return", "LT return temperature", "°C", "lt_circuit", "measurement"),
+        ("LO_cooler_out", "Lube oil temperature after cooler", "°C", "lt_circuit", "measurement"),
+    ]:
+        model.add(Tag(tid, desc + note, unit, asset, kind=kind))
+    return model

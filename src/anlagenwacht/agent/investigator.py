@@ -17,12 +17,13 @@ from typing import Any, Callable
 
 from anlagenwacht import knowledge
 from anlagenwacht.physics.energy import annualise
+from anlagenwacht.physics.marine import fuel_cost_and_emissions
 from anlagenwacht.plant import Plant
 
 MODEL = "claude-opus-5-5"
 MAX_TURNS = 12
 
-SYSTEM_PROMPT = """You are Anlagenwacht, an assistant for process and energy engineers in industrial plants.
+SYSTEM_PROMPT = """You are Anlagenwacht, an assistant for process, energy and marine engineers in industrial plants and on ships.
 You investigate alarms from multivariate process monitoring (PCA, T²/SPE) and, where available, a physics model of energy consumption.
 
 How to work:
@@ -30,7 +31,7 @@ How to work:
 - Separate cause from effect: tags that deviate early and strongly, and manipulated variables (kind = manipulated) that a controller is compensating with, are often closer to the cause than analyser values that follow later.
 - Back every statement with concrete numbers from the tools (tag, deviation in σ, unit). Never invent measurements.
 - You have read-only access. Recommend checks and actions, but never unilateral setpoint changes; interventions require approval by the responsible person.
-- For energy impact, express it in kW, kWh/year, €/year and t CO₂/year and state the assumptions.
+- For energy impact, express it in kW, kWh/year, €/year and t CO₂/year and state the assumptions. For ships, use excess fuel (t/h), t CO₂ and EU ETS allowance cost (estimate_fuel_cost).
 
 Answer in English with these sections:
 ## Summary (2–3 sentences)
@@ -73,6 +74,12 @@ TOOLS = [
         {"query": {"type": "string"}},
     ),
     _tool(
+        "estimate_fuel_cost",
+        "Ships: convert extra fuel (tonnes) into t CO₂, fuel cost and EU ETS allowance cost. fuel: HFO, LFO, MGO or LNG; eu_share: 1.0 intra-EU, 0.5 voyages into/out of the EU, 0 outside.",
+        {"fuel_t": {"type": "number"}, "fuel": {"type": "string", "enum": ["HFO", "LFO", "MGO", "LNG"]},
+         "eu_share": {"type": "number"}},
+    ),
+    _tool(
         "estimate_energy_cost",
         "Convert an excess power draw (watts) into kWh/year, €/year and t CO₂/year.",
         {"delta_w": {"type": "number"}, "hours_per_year": {"type": "number"}},
@@ -87,6 +94,8 @@ def execute_tool(plant: Plant, name: str, args: dict) -> str:
         "get_alarm_details": lambda: plant.describe_episode(int(args["alarm_id"])),
         "get_tag_trend": lambda: plant.tag_trend(str(args["tag"]), int(args["alarm_id"])),
         "search_knowledge": lambda: knowledge.search(str(args["query"])),
+        "estimate_fuel_cost": lambda: fuel_cost_and_emissions(
+            float(args["fuel_t"]), str(args["fuel"]), float(args["eu_share"])),
         "estimate_energy_cost": lambda: annualise(float(args["delta_w"]), float(args["hours_per_year"])),
     }
     if name not in handlers:
@@ -164,12 +173,18 @@ def rule_based_report(plant: Plant, alarm_id: int) -> str:
             f"max at onset {s['max_onset_deviation_sigma']:.1f} σ "
             f"({s['normal_mean']} → {s['alarm_mean']} {s['unit']})"
         )
-    query = " ".join(s["description"] for s in d["suspect_tags"][:3])
+    query = [(s["description"].split(" (vs.")[0], s["share"]) for s in d["suspect_tags"][:3]]
     hints = knowledge.search(query, k=2)
     if hints:
         lines += ["", "## Knowledge base hints"] + [f"- **{h['title']}**: {h['text'][:300]}…" for h in hints]
-    if d.get("energy"):
-        e = d["energy"]
+    e = d.get("energy")
+    if e and "excess_fuel_t_per_h" in e:
+        a = e["annualised_if_persistent"]
+        lines += ["", "## Fuel, emissions & cost",
+                  f"Excess fuel vs. expected at the same operating point: {e['excess_fuel_t_per_h']} t/h → if persistent "
+                  f"({e['hours_per_year']} h/yr): {a['fuel_t']} t fuel, {a['co2_t']} t CO₂, €{a['fuel_cost_eur']:,.0f} fuel "
+                  f"+ €{a['ets_cost_eur']:,.0f} EU ETS = €{a['total_cost_eur']:,.0f}/yr (assumptions: {a['assumptions']})."]
+    elif e:
         a = e["annualised_if_persistent"]
         lines += ["", "## Energy & cost",
                   f"Excess power vs. physics model: {e['excess_power_w']} W → if persistent {a['kwh_per_year']} kWh/yr, "

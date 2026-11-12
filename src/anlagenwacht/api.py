@@ -12,12 +12,14 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 
 from anlagenwacht.agent import investigate
-from anlagenwacht.plant import Plant, skab_plant, synthetic_plant, tep_plant
+from anlagenwacht.plant import Plant, naval_plant, skab_plant, synthetic_plant, tep_plant, vessel_plant
 
 app = FastAPI(title="Anlagenwacht", version="0.1.0")
 
 DEMO_PLANTS = ["demo"] + [f"tep-{i}" for i in (1, 2, 4, 5, 6, 7, 11, 14)] + [
-    "skab-valve1-1", "skab-valve2-1", "skab-other-1"]
+    "skab-valve1-1", "skab-valve2-1", "skab-other-1"] + [
+    "vessel-sw_strainer", "vessel-cooler_fouling", "vessel-valve_stuck", "vessel-hull_fouling",
+    "naval-compressor", "naval-turbine"]
 
 
 @lru_cache(maxsize=16)
@@ -29,6 +31,12 @@ def get_plant(pid: str) -> Plant:
     if pid.startswith("skab-"):
         _, group, i = pid.split("-")
         return skab_plant(f"{group}/{i}")
+    if pid.startswith("vessel-"):
+        return vessel_plant(pid.split("-", 1)[1])
+    if pid == "naval-compressor":
+        return naval_plant(kmc_end=0.96, kmt_end=1.0)
+    if pid == "naval-turbine":
+        return naval_plant(kmc_end=1.0, kmt_end=0.977)
     raise KeyError(pid)
 
 

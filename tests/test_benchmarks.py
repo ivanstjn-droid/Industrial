@@ -20,3 +20,12 @@ def test_skab_benchmark_quality():
 
     r = evaluate_skab()
     assert r["metrics"]["pca_sensors_plus_physics"]["f1"] >= 0.70
+
+
+def test_maritime_benchmark_quality():
+    from anlagenwacht.evaluate_maritime import evaluate_naval
+
+    r = evaluate_naval()
+    assert r["false_alarm_rate_healthy_holdout"] <= 0.05
+    assert r["detection_by_compressor_decay"][-1]["detection_rate"] >= 0.9  # 5 % compressor decay
+    assert r["decay_estimation"]["kMc"]["r2"] >= 0.9

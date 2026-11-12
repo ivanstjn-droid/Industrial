@@ -174,6 +174,10 @@ def main(argv: list[str] | None = None) -> None:
     if which in ("skab", "all"):
         r = evaluate_skab()
         print("SKAB:", json.dumps(r["metrics"]), r["energy"])
+    if which in ("maritime", "all"):
+        from anlagenwacht.evaluate_maritime import main as maritime
+
+        maritime()
 
 
 if __name__ == "__main__":

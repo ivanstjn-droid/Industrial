@@ -1,6 +1,6 @@
 # CLAUDE.md – Anlagenwacht
 
-Physics-informed anomaly detection + AI root-cause assistant for German process/energy plants. MVP stage, heading for a paid pilot.
+Physics-informed anomaly detection + AI root-cause assistant for process/energy plants (Germany first) and ships (second vertical). MVP stage, heading for a paid pilot.
 
 ## Commands
 - `pip install -e '.[dev]'`
@@ -18,6 +18,8 @@ Physics-informed anomaly detection + AI root-cause assistant for German process/
 
 ## Conventions
 - Detection changes must be measured: run `anlagenwacht benchmark all` before/after and state the delta in the commit message. Do not lower thresholds in `tests/test_benchmarks.py` to make a change pass.
+- Assets whose operating point varies (ships, variable-load machines) are monitored on residuals from `physics/baseline.py`, never on raw values.
+- Synthetic simulators must be labelled as synthetic in reports; never present their numbers as real-world accuracy.
 - New equipment types get: an asset-model factory in `assets.py`, a physics model in `physics/`, knowledge-base notes in `knowledge/`, tests.
 - Claude API: model `claude-opus-5-5`, adaptive thinking, strict tool schemas, server-side fallbacks (see `agent/investigator.py`).
 - Keep dependencies minimal (numpy/pandas/scipy/sklearn/fastapi/anthropic).

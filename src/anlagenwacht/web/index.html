@@ -88,13 +88,14 @@ async function loadAlarm(id) {
   aid = id; $('report').textContent = '';
   document.querySelectorAll('.alarm').forEach(el => el.classList.toggle('sel', +el.dataset.id === id));
   const d = await j(`/api/plants/${pid}/alarms/${id}`);
-  $('dtitle').textContent = `Alarm #${id} · ${d.start.slice(0,16)} – ${d.end.slice(11,16)} · dominant ${d.dominant_statistic}`;
+  $('dtitle').textContent = `Alarm #${id} · ${d.start.slice(0,16)} – ${d.end.slice(0,10) === d.start.slice(0,10) ? d.end.slice(11,16) : d.end.slice(0,16)} · dominant ${d.dominant_statistic}`;
   const maxShare = Math.max(...d.suspect_tags.map(s => s.share));
   $('detail').innerHTML = '<div class="muted">Suspect tags (contribution at alarm onset)</div>' +
     d.suspect_tags.map(s => `<div class="row"><div><b>${esc(s.tag)}</b> ${esc(s.description)}
       <span class="muted">(mean ${s.mean_deviation_sigma > 0 ? '+' : ''}${s.mean_deviation_sigma} σ, onset max ${s.max_onset_deviation_sigma} σ)</span>
       <div class="bar" style="width:${s.share / maxShare * 100}%"></div></div><div>${(s.share * 100).toFixed(0)} %</div></div>`).join('') +
-    (d.energy ? `<p class="muted">Excess power vs. physics model: ${d.energy.excess_power_w} W</p>` : '');
+    (d.energy && d.energy.excess_fuel_t_per_h !== undefined ? `<p class="muted">Excess fuel vs. expected: ${d.energy.excess_fuel_t_per_h} t/h → if persistent ${Math.round(d.energy.annualised_if_persistent.co2_t).toLocaleString('en')} t CO₂ and €${Math.round(d.energy.annualised_if_persistent.total_cost_eur).toLocaleString('en')} per year incl. EU ETS</p>`
+      : d.energy ? `<p class="muted">Excess power vs. physics model: ${d.energy.excess_power_w} W</p>` : '');
   $('inv').hidden = false;
 }
 

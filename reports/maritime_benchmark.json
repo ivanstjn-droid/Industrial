@@ -1,0 +1,202 @@
+{
+  "naval": {
+    "false_alarm_rate_healthy_holdout": 0.019,
+    "detection_by_compressor_decay": [
+      {
+        "compressor_decay_pct": 1.0,
+        "detection_rate": 0.111
+      },
+      {
+        "compressor_decay_pct": 2.0,
+        "detection_rate": 0.556
+      },
+      {
+        "compressor_decay_pct": 3.0,
+        "detection_rate": 0.778
+      },
+      {
+        "compressor_decay_pct": 4.0,
+        "detection_rate": 1.0
+      },
+      {
+        "compressor_decay_pct": 5.0,
+        "detection_rate": 1.0
+      }
+    ],
+    "detection_by_turbine_decay": [
+      {
+        "turbine_decay_pct": 0.5,
+        "detection_rate": 0.111
+      },
+      {
+        "turbine_decay_pct": 1.0,
+        "detection_rate": 0.0
+      },
+      {
+        "turbine_decay_pct": 1.5,
+        "detection_rate": 0.333
+      },
+      {
+        "turbine_decay_pct": 2.0,
+        "detection_rate": 0.556
+      },
+      {
+        "turbine_decay_pct": 2.5,
+        "detection_rate": 0.556
+      }
+    ],
+    "decay_estimation": {
+      "kMc": {
+        "mae": 0.00234,
+        "r2": 0.9575
+      },
+      "kMt": {
+        "mae": 0.0013,
+        "r2": 0.9496
+      }
+    },
+    "fuel_penalty": [
+      {
+        "kMc": 0.99,
+        "kMt": 1.0,
+        "fuel_penalty_pct": 0.02
+      },
+      {
+        "kMc": 0.98,
+        "kMt": 1.0,
+        "fuel_penalty_pct": 0.96
+      },
+      {
+        "kMc": 0.97,
+        "kMt": 1.0,
+        "fuel_penalty_pct": 1.81
+      },
+      {
+        "kMc": 0.96,
+        "kMt": 1.0,
+        "fuel_penalty_pct": 2.76
+      },
+      {
+        "kMc": 0.95,
+        "kMt": 1.0,
+        "fuel_penalty_pct": 3.67
+      },
+      {
+        "kMc": 1.0,
+        "kMt": 0.99,
+        "fuel_penalty_pct": 1.28
+      },
+      {
+        "kMc": 1.0,
+        "kMt": 0.98,
+        "fuel_penalty_pct": 3.14
+      },
+      {
+        "kMc": 1.0,
+        "kMt": 0.975,
+        "fuel_penalty_pct": 4.31
+      },
+      {
+        "kMc": 0.97,
+        "kMt": 0.985,
+        "fuel_penalty_pct": 4.75
+      }
+    ],
+    "cost_example": {
+      "scenario": "15 kn, compressor decay 3 %, 3000 h/yr, MGO, 100 % EU ETS",
+      "extra_fuel_t_per_h": 0.0714,
+      "fuel_t": 214.111,
+      "co2_t": 686.44,
+      "eu_allowances_t": 686.44,
+      "fuel_cost_eur": 149877.68,
+      "ets_cost_eur": 51482.98,
+      "total_cost_eur": 201360.67,
+      "assumptions": {
+        "fuel": "MGO",
+        "co2_factor": 3.206,
+        "eu_share": 1.0,
+        "ets_phase_in": 1.0,
+        "eua_price_eur": 75.0,
+        "fuel_price_eur_per_t": 700.0
+      }
+    }
+  },
+  "vessel": {
+    "false_alarm_rate_no_fault_run": 0.0,
+    "faults": [
+      {
+        "fault": "sw_strainer",
+        "description": "Sea-water strainer clogging",
+        "false_alarm_rate_before_fault": 0.0,
+        "detection_delay_h": 14,
+        "detection_rate_after_ramp": 1.0,
+        "top3_tags": [
+          "SW_press",
+          "SW_flow",
+          "SW_cooler_out"
+        ],
+        "rca_hit_top3": true
+      },
+      {
+        "fault": "cooler_fouling",
+        "description": "Central cooler fouling",
+        "false_alarm_rate_before_fault": 0.0,
+        "detection_delay_h": 59,
+        "detection_rate_after_ramp": 0.858,
+        "top3_tags": [
+          "LT_valve",
+          "SW_press",
+          "SW_flow"
+        ],
+        "rca_hit_top3": true
+      },
+      {
+        "fault": "valve_stuck",
+        "description": "LT 3-way thermostatic valve stuck",
+        "false_alarm_rate_before_fault": 0.0,
+        "detection_delay_h": 6,
+        "detection_rate_after_ramp": 1.0,
+        "top3_tags": [
+          "LT_supply",
+          "LT_return",
+          "LO_cooler_out"
+        ],
+        "rca_hit_top3": true
+      },
+      {
+        "fault": "hull_fouling",
+        "description": "Hull fouling (added resistance)",
+        "false_alarm_rate_before_fault": 0.0,
+        "detection_delay_h": 34,
+        "detection_rate_after_ramp": 1.0,
+        "top3_tags": [
+          "ME_power",
+          "ME_fuel",
+          "LT_valve"
+        ],
+        "rca_hit_top3": true,
+        "cost_if_persistent": {
+          "excess_fuel_t_per_h": 0.1669,
+          "annualised_if_persistent": {
+            "fuel_t": 1084.814,
+            "co2_t": 3378.109,
+            "eu_allowances_t": 1689.055,
+            "fuel_cost_eur": 488166.11,
+            "ets_cost_eur": 126679.11,
+            "total_cost_eur": 614845.22,
+            "assumptions": {
+              "fuel": "HFO",
+              "co2_factor": 3.114,
+              "eu_share": 0.5,
+              "ets_phase_in": 1.0,
+              "eua_price_eur": 75.0,
+              "fuel_price_eur_per_t": 450.0
+            }
+          },
+          "hours_per_year": 6500
+        }
+      }
+    ],
+    "rca_hit_top3": "4/4"
+  }
+}

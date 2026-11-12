@@ -15,6 +15,14 @@
 - [ ] District heating / CHP synthetic plant from OpenModelica TransiEnt; German energy prices from SMARD
 - [ ] LLM evaluation: root-cause accuracy of Claude reports vs. rule-based on TEP faults (engineer-graded rubric)
 
+## Maritime track (in parallel, demand validation first)
+- [x] Naval gas-turbine wear benchmark (UCI CBM), vessel cooling/hull simulator, fuel → CO₂ → EU ETS cost
+- [ ] 8–10 interviews with technical superintendents (Hamburg, Bremen, Leer): current monitoring, gaps, willingness to pay
+- [ ] Connectors: ship data loggers / alarm & monitoring system exports, noon reports, AIS position and speed
+- [ ] Merchant diesel engine models (SFOC vs. load, turbocharger, exhaust temperatures) and ISO 19030 hull performance
+- [ ] On-board edge deployment with store-and-forward over satellite; IACS UR E26/E27 cyber-resilience documentation
+- [ ] FuelEU Maritime GHG-intensity reporting alongside EU ETS
+
 ## Pilot readiness (weeks 4–10)
 - [ ] Connectors: historian CSV import wizard, OPC UA (read-only, asyncua), MQTT
 - [ ] TimescaleDB storage, streaming scoring, alarm persistence + engineer feedback (true/false alarm, confirmed cause)

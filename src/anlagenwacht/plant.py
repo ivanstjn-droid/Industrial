@@ -24,6 +24,8 @@ class Plant:
     live: pd.DataFrame  # data being monitored
     monitor: PCAMonitor
     energy_model: PumpEnergyModel | None = None
+    # fuel accounting for ships: {tag, to_t_per_h, fuel, eu_share, hours_per_year}
+    fuel: dict | None = None
     scores: pd.DataFrame = field(init=False)
     contributions: pd.DataFrame = field(init=False)
     episodes: list[dict] = field(init=False)
@@ -66,7 +68,7 @@ class Plant:
             "suspect_tags": suspects,
             "share_by_asset": {k: round(v, 3) for k, v in sorted(by_asset.items(), key=lambda kv: -kv[1])},
         }
-        if self.energy_model is not None:
+        if self.energy_model is not None or self.fuel is not None:
             out["energy"] = self.energy_impact(episode_id)
         return out
 
@@ -105,9 +107,21 @@ class Plant:
         }
 
     def energy_impact(self, episode_id: int) -> dict | None:
+        ep = self.episode(episode_id)
+        if self.fuel is not None:
+            from anlagenwacht.physics.marine import fuel_cost_and_emissions
+
+            f = self.fuel
+            seg = self.live[f["tag"]].iloc[ep["start_pos"] : ep["end_pos"] + 1]
+            excess_t_h = float(seg.mean()) * f["to_t_per_h"]
+            return {
+                "excess_fuel_t_per_h": round(excess_t_h, 4),
+                "annualised_if_persistent": fuel_cost_and_emissions(
+                    max(excess_t_h, 0.0) * f["hours_per_year"], f["fuel"], f["eu_share"]),
+                "hours_per_year": f["hours_per_year"],
+            }
         if self.energy_model is None or "P_el_residual" not in self.live:
             return None
-        ep = self.episode(episode_id)
         excess = float(self.live["P_el_residual"].iloc[ep["start_pos"] : ep["end_pos"] + 1].mean())
         return {"excess_power_w": round(excess, 2), "annualised_if_persistent": annualise(max(excess, 0.0))}
 
@@ -172,3 +186,41 @@ def synthetic_plant(seed: int = 0) -> Plant:
         model.add(Tag(t, d, u, "unit"))
     monitor = PCAMonitor(var_explained=0.9).fit(df.iloc[:250])
     return Plant("Synthetic test plant", model, df.iloc[:250], df, monitor)
+
+
+# ------------------------------------------------------------------ maritime
+def naval_plant(kmc_end: float = 0.96, kmt_end: float = 1.0) -> Plant:
+    """Gas-turbine compressor (or turbine) wear building up over ~6 months of operation."""
+    from anlagenwacht.assets import naval_gt_asset_model
+    from anlagenwacht.datasets.naval import SENSORS, degradation_voyage, healthy_mask, load_naval
+    from anlagenwacht.physics.baseline import OperatingPointBaseline
+
+    df = load_naval()
+    ref_raw = df[healthy_mask(df)]
+    base = OperatingPointBaseline(["v"], degree=4).fit(ref_raw, SENSORS)
+    voyage = degradation_voyage(df, kmc_end=kmc_end, kmt_end=kmt_end)
+    ref = base.residuals(ref_raw)
+    live = base.residuals(voyage)
+    monitor = PCAMonitor(var_explained=0.95, persistence=3).fit(ref)
+    what = "compressor" if kmc_end < 1 else "turbine"
+    return Plant(f"Naval gas turbine – {what} wear over 6 months", naval_gt_asset_model(), ref, live, monitor,
+                 fuel={"tag": "mf", "to_t_per_h": 3.6, "fuel": "MGO", "eu_share": 1.0, "hours_per_year": 3000})
+
+
+VESSEL_TAGS = ["ME_power", "ME_fuel", "SW_flow", "SW_press", "SW_pump_kw", "SW_cooler_out", "LT_valve",
+               "LT_supply", "LT_return", "LO_cooler_out"]
+
+
+def vessel_plant(fault: str | None = "sw_strainer", train_days: int = 20) -> Plant:
+    from anlagenwacht.assets import vessel_asset_model
+    from anlagenwacht.datasets.vessel_sim import simulate_vessel
+    from anlagenwacht.physics.baseline import OperatingPointBaseline
+
+    sim = simulate_vessel(fault)
+    n_train = train_days * 24
+    base = OperatingPointBaseline(["speed", "SW_temp"], degree=3).fit(sim.iloc[:n_train], VESSEL_TAGS)
+    resid = base.residuals(sim)
+    monitor = PCAMonitor(var_explained=0.95, persistence=6).fit(resid.iloc[:n_train])
+    label = fault or "no fault"
+    return Plant(f"Merchant vessel – {label}", vessel_asset_model(), resid.iloc[:n_train], resid, monitor,
+                 fuel={"tag": "ME_fuel", "to_t_per_h": 1.0, "fuel": "HFO", "eu_share": 0.5, "hours_per_year": 6500})
