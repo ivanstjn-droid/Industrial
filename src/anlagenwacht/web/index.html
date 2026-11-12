@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -33,18 +33,18 @@
 </header>
 <main>
   <section class="card">
-    <h3 style="margin-top:0">Alarme</h3>
-    <div id="alarms" class="muted">Lade…</div>
+    <h3 style="margin-top:0">Alarms</h3>
+    <div id="alarms" class="muted">Loading…</div>
   </section>
   <section>
     <div class="card">
-      <div class="muted">Anomalie-Score (1 = Grenzwert), rot = Alarm</div>
+      <div class="muted">Anomaly score (1 = control limit), red = alarm</div>
       <svg id="chart" preserveAspectRatio="none"></svg>
     </div>
     <div class="card" style="margin-top:16px">
-      <h3 style="margin-top:0" id="dtitle">Alarm auswählen</h3>
+      <h3 style="margin-top:0" id="dtitle">Select an alarm</h3>
       <div id="detail"></div>
-      <p><button class="primary" id="inv" hidden>Ursache untersuchen</button></p>
+      <p><button class="primary" id="inv" hidden>Investigate root cause</button></p>
       <div id="report"></div>
     </div>
   </section>
@@ -64,13 +64,13 @@ async function loadPlants() {
 
 async function loadPlant(p) {
   pid = p; aid = null; $('detail').innerHTML = ''; $('report').textContent = ''; $('inv').hidden = true;
-  $('alarms').textContent = 'Lade…';
+  $('alarms').textContent = 'Loading…';
   const [s, sc, al] = await Promise.all([j(`/api/plants/${p}`), j(`/api/plants/${p}/scores`), j(`/api/plants/${p}/alarms`)]);
-  $('summary').textContent = `${s.anlage} · ${s.samples} Messpunkte · ${s.alarme} Alarme`;
+  $('summary').textContent = `${s.plant} · ${s.samples} samples · ${s.alarms} alarms`;
   drawChart(sc);
   $('alarms').innerHTML = al.length ? al.map(a => `<div class="alarm" data-id="${a.id}">
-      <b>#${a.id}</b> ${esc(a.start.slice(5,16))} · ${a.n_samples} Pkt · max ${a.peak_score}×<br>
-      <span class="muted">${a.top_tags.slice(0,3).map(t => esc(t.tag)).join(', ')}</span></div>`).join('') : 'Keine Alarme.';
+      <b>#${a.id}</b> ${esc(a.start.slice(5,16))} · ${a.n_samples} pts · max ${a.peak_score}×<br>
+      <span class="muted">${a.top_tags.slice(0,3).map(t => esc(t.tag)).join(', ')}</span></div>`).join('') : 'No alarms.';
   document.querySelectorAll('.alarm').forEach(el => el.onclick = () => loadAlarm(+el.dataset.id));
 }
 
@@ -89,21 +89,21 @@ async function loadAlarm(id) {
   document.querySelectorAll('.alarm').forEach(el => el.classList.toggle('sel', +el.dataset.id === id));
   const d = await j(`/api/plants/${pid}/alarms/${id}`);
   $('dtitle').textContent = `Alarm #${id} · ${d.start.slice(0,16)} – ${d.end.slice(11,16)} · dominant ${d.dominant_statistic}`;
-  const maxShare = Math.max(...d.verdaechtige_tags.map(s => s.anteil));
-  $('detail').innerHTML = '<div class="muted">Verdächtige Tags (Beitrag zu Beginn des Alarms)</div>' +
-    d.verdaechtige_tags.map(s => `<div class="row"><div><b>${esc(s.tag)}</b> ${esc(s.beschreibung)}
-      <span class="muted">(Ø ${s.abweichung_sigma > 0 ? '+' : ''}${s.abweichung_sigma} σ, Beginn max ${s.max_abweichung_beginn_sigma} σ)</span>
-      <div class="bar" style="width:${s.anteil / maxShare * 100}%"></div></div><div>${(s.anteil * 100).toFixed(0)} %</div></div>`).join('') +
-    (d.energie ? `<p class="muted">Mehrverbrauch ggü. Physikmodell: ${d.energie.mehrverbrauch_w} W</p>` : '');
+  const maxShare = Math.max(...d.suspect_tags.map(s => s.share));
+  $('detail').innerHTML = '<div class="muted">Suspect tags (contribution at alarm onset)</div>' +
+    d.suspect_tags.map(s => `<div class="row"><div><b>${esc(s.tag)}</b> ${esc(s.description)}
+      <span class="muted">(mean ${s.mean_deviation_sigma > 0 ? '+' : ''}${s.mean_deviation_sigma} σ, onset max ${s.max_onset_deviation_sigma} σ)</span>
+      <div class="bar" style="width:${s.share / maxShare * 100}%"></div></div><div>${(s.share * 100).toFixed(0)} %</div></div>`).join('') +
+    (d.energy ? `<p class="muted">Excess power vs. physics model: ${d.energy.excess_power_w} W</p>` : '');
   $('inv').hidden = false;
 }
 
 $('inv').onclick = async () => {
-  $('report').textContent = 'Untersuche…';
+  $('report').textContent = 'Investigating…';
   const r = await j(`/api/plants/${pid}/alarms/${aid}/investigate`, { method: 'POST' });
-  $('report').textContent = (r.mode === 'claude' ? '' : '[Regelbasiert] ') + r.report;
+  $('report').textContent = (r.mode === 'claude' ? '' : '[Rule-based] ') + r.report;
 };
-loadPlants().catch(e => $('alarms').textContent = 'Fehler: ' + e.message);
+loadPlants().catch(e => $('alarms').textContent = 'Error: ' + e.message);
 </script>
 </body>
 </html>

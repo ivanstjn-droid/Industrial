@@ -12,7 +12,7 @@ Physics-informed anomaly detection + AI root-cause assistant for German process/
 ## Non-negotiable product rules
 - **Read-only.** Nothing in this codebase may write to a control system (no OPC UA writes, no setpoint changes). The assistant recommends; humans decide. This keeps us outside "safety component" scope under the EU AI Act.
 - **Evidence over eloquence.** Every statement in an investigation report must trace to a tool result (tag, σ deviation, unit).
-- **German UI and reports**, English code and docstrings.
+- **English UI, reports and code.** German localisation for German customers is on the roadmap; keep user-facing strings easy to extract.
 - **Works offline.** Every Claude feature needs a deterministic fallback; tests never call the real API (use the fake client pattern in `tests/test_core.py`).
 - **Data stays with the customer.** No telemetry, no uploading plant data anywhere except the configured LLM endpoint (EU region in pilots).
 

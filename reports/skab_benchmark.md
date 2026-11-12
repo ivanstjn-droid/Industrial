@@ -1,15 +1,15 @@
-# Benchmark: SKAB Pumpenprüfstand
+# Benchmark: SKAB pump testbed
 
-34 Versuche; je Versuch Training auf den ersten 400 Samples (Normalbetrieb), Bewertung punktweise auf dem Rest.
+34 experiments; each trained on its first 400 samples (normal operation), scored point-wise on the remainder.
 
-| Variante | Precision | Recall | F1 | FAR | MAR |
+| Variant | Precision | Recall | F1 | FAR | MAR |
 |---|---|---|---|---|---|
-| pca_sensoren | 0.699 | 0.772 | 0.733 | 0.385 | 0.228 |
-| pca_sensoren_plus_physik | 0.704 | 0.771 | 0.736 | 0.376 | 0.229 |
+| pca_sensors | 0.699 | 0.772 | 0.733 | 0.385 | 0.228 |
+| pca_sensors_plus_physics | 0.704 | 0.771 | 0.736 | 0.376 | 0.229 |
 
-## Energie (Physikmodell P_el ~ f(p·Q, Q))
-- Mittlerer Mehrverbrauch während Anomalien: -0.51 W
-- Mittlerer Mehrverbrauch im Normalbetrieb (Testteil): -2.68 W
-- Versuche mit höherem Verbrauch während Anomalie: 17/34
+## Energy (physics model P_el ~ f(p·Q, Q))
+- Mean excess power during anomalies: -0.51 W
+- Mean excess power during normal operation (test part): -2.68 W
+- Experiments with higher power draw during anomalies: 17/34
 
-Hinweis: Der Prüfstand ist klein (Watt-Bereich); relevant ist das Verfahren, nicht die absoluten Beträge.
+Note: the testbed is small (watt range); the method matters here, not the absolute values.

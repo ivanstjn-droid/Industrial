@@ -12,7 +12,7 @@
   "faults": [
     {
       "fault": 1,
-      "beschreibung": "A/C-Zulaufverhältnis, B-Anteil konstant (Sprung)",
+      "description": "A/C feed ratio, B composition constant (step)",
       "detection_rate": 0.996,
       "false_alarm_rate_prefault": 0.006,
       "detection_delay_min": 9,
@@ -27,7 +27,7 @@
     },
     {
       "fault": 2,
-      "beschreibung": "B-Anteil, A/C-Verhältnis konstant (Sprung)",
+      "description": "B composition, A/C ratio constant (step)",
       "detection_rate": 0.988,
       "false_alarm_rate_prefault": 0.019,
       "detection_delay_min": 30,
@@ -42,7 +42,7 @@
     },
     {
       "fault": 3,
-      "beschreibung": "D-Zulauftemperatur (Sprung)",
+      "description": "D feed temperature (step)",
       "detection_rate": 0.039,
       "false_alarm_rate_prefault": 0.044,
       "detection_delay_min": 9,
@@ -51,7 +51,7 @@
     },
     {
       "fault": 4,
-      "beschreibung": "Reaktor-Kühlwasser-Eintrittstemperatur (Sprung)",
+      "description": "Reactor cooling water inlet temperature (step)",
       "detection_rate": 0.998,
       "false_alarm_rate_prefault": 0.013,
       "detection_delay_min": 6,
@@ -66,7 +66,7 @@
     },
     {
       "fault": 5,
-      "beschreibung": "Kondensator-Kühlwasser-Eintrittstemperatur (Sprung)",
+      "description": "Condenser cooling water inlet temperature (step)",
       "detection_rate": 0.29,
       "false_alarm_rate_prefault": 0.013,
       "detection_delay_min": 6,
@@ -81,7 +81,7 @@
     },
     {
       "fault": 6,
-      "beschreibung": "Verlust A-Zulauf (Sprung)",
+      "description": "A feed loss (step)",
       "detection_rate": 0.998,
       "false_alarm_rate_prefault": 0.006,
       "detection_delay_min": 6,
@@ -96,7 +96,7 @@
     },
     {
       "fault": 7,
-      "beschreibung": "C-Sammelleitung Druckverlust (Sprung)",
+      "description": "C header pressure loss (step)",
       "detection_rate": 0.998,
       "false_alarm_rate_prefault": 0.0,
       "detection_delay_min": 6,
@@ -111,7 +111,7 @@
     },
     {
       "fault": 8,
-      "beschreibung": "A,B,C-Zulaufzusammensetzung (zufällig)",
+      "description": "A, B, C feed composition (random variation)",
       "detection_rate": 0.979,
       "false_alarm_rate_prefault": 0.006,
       "detection_delay_min": 51,
@@ -120,7 +120,7 @@
     },
     {
       "fault": 9,
-      "beschreibung": "D-Zulauftemperatur (zufällig)",
+      "description": "D feed temperature (random variation)",
       "detection_rate": 0.034,
       "false_alarm_rate_prefault": 0.05,
       "detection_delay_min": 12,
@@ -129,7 +129,7 @@
     },
     {
       "fault": 10,
-      "beschreibung": "C-Zulauftemperatur (zufällig)",
+      "description": "C feed temperature (random variation)",
       "detection_rate": 0.649,
       "false_alarm_rate_prefault": 0.013,
       "detection_delay_min": 0,
@@ -138,7 +138,7 @@
     },
     {
       "fault": 11,
-      "beschreibung": "Reaktor-Kühlwasser-Eintrittstemperatur (zufällig)",
+      "description": "Reactor cooling water inlet temperature (random variation)",
       "detection_rate": 0.739,
       "false_alarm_rate_prefault": 0.037,
       "detection_delay_min": 21,
@@ -153,7 +153,7 @@
     },
     {
       "fault": 12,
-      "beschreibung": "Kondensator-Kühlwasser-Eintrittstemperatur (zufällig)",
+      "description": "Condenser cooling water inlet temperature (random variation)",
       "detection_rate": 0.989,
       "false_alarm_rate_prefault": 0.013,
       "detection_delay_min": 12,
@@ -162,7 +162,7 @@
     },
     {
       "fault": 13,
-      "beschreibung": "Reaktionskinetik (langsame Drift)",
+      "description": "Reaction kinetics (slow drift)",
       "detection_rate": 0.953,
       "false_alarm_rate_prefault": 0.006,
       "detection_delay_min": 114,
@@ -171,7 +171,7 @@
     },
     {
       "fault": 14,
-      "beschreibung": "Reaktor-Kühlwasserventil (Klemmen)",
+      "description": "Reactor cooling water valve (sticking)",
       "detection_rate": 0.999,
       "false_alarm_rate_prefault": 0.006,
       "detection_delay_min": 3,
@@ -186,7 +186,7 @@
     },
     {
       "fault": 15,
-      "beschreibung": "Kondensator-Kühlwasserventil (Klemmen)",
+      "description": "Condenser cooling water valve (sticking)",
       "detection_rate": 0.087,
       "false_alarm_rate_prefault": 0.0,
       "detection_delay_min": 279,
@@ -195,7 +195,7 @@
     },
     {
       "fault": 16,
-      "beschreibung": "Unbekannt",
+      "description": "Unknown",
       "detection_rate": 0.591,
       "false_alarm_rate_prefault": 0.019,
       "detection_delay_min": 48,
@@ -204,7 +204,7 @@
     },
     {
       "fault": 17,
-      "beschreibung": "Unbekannt",
+      "description": "Unknown",
       "detection_rate": 0.965,
       "false_alarm_rate_prefault": 0.037,
       "detection_delay_min": 57,
@@ -213,7 +213,7 @@
     },
     {
       "fault": 18,
-      "beschreibung": "Unbekannt",
+      "description": "Unknown",
       "detection_rate": 0.9,
       "false_alarm_rate_prefault": 0.013,
       "detection_delay_min": 231,
@@ -222,7 +222,7 @@
     },
     {
       "fault": 19,
-      "beschreibung": "Unbekannt",
+      "description": "Unknown",
       "detection_rate": 0.214,
       "false_alarm_rate_prefault": 0.006,
       "detection_delay_min": 30,
@@ -231,7 +231,7 @@
     },
     {
       "fault": 20,
-      "beschreibung": "Unbekannt",
+      "description": "Unknown",
       "detection_rate": 0.635,
       "false_alarm_rate_prefault": 0.0,
       "detection_delay_min": 246,
@@ -240,7 +240,7 @@
     },
     {
       "fault": 21,
-      "beschreibung": "Ventil Strom 4 in Ruhelage fixiert",
+      "description": "Stream 4 valve fixed at steady-state position",
       "detection_rate": 0.564,
       "false_alarm_rate_prefault": 0.037,
       "detection_delay_min": 0,

@@ -1,7 +1,7 @@
 """Asset model: plant hierarchy, tags, units and descriptions.
 
 The asset model is what turns a ranked list of anonymous sensor columns into
-something an operator can act on ("Reaktor-Kühlwasser-Austrittstemperatur"
+something an operator can act on ("Reactor cooling water outlet temperature"
 rather than "XMEAS21").
 """
 
@@ -31,7 +31,7 @@ class AssetModel:
         self.tags[tag.id] = tag
 
     def tag(self, tag_id: str) -> Tag:
-        return self.tags.get(tag_id) or Tag(tag_id, tag_id, "", "unbekannt")
+        return self.tags.get(tag_id) or Tag(tag_id, tag_id, "", "unknown")
 
     def tags_of(self, asset: str) -> list[Tag]:
         return [t for t in self.tags.values() if t.asset == asset]
@@ -48,46 +48,46 @@ class AssetModel:
 
 # --------------------------------------------------------------------------- TEP
 _TEP_MEAS = [
-    ("A-Zulauf (Strom 1)", "kscmh", "zulauf"),
-    ("D-Zulauf (Strom 2)", "kg/h", "zulauf"),
-    ("E-Zulauf (Strom 3)", "kg/h", "zulauf"),
-    ("A+C-Zulauf (Strom 4)", "kscmh", "zulauf"),
-    ("Rückführstrom (Strom 8)", "kscmh", "kompressor"),
-    ("Reaktor-Zulaufrate (Strom 6)", "kscmh", "reaktor"),
-    ("Reaktordruck", "kPa", "reaktor"),
-    ("Reaktorfüllstand", "%", "reaktor"),
-    ("Reaktortemperatur", "°C", "reaktor"),
-    ("Spülgasmenge (Strom 9)", "kscmh", "abscheider"),
-    ("Abscheider-Temperatur", "°C", "abscheider"),
-    ("Abscheider-Füllstand", "%", "abscheider"),
-    ("Abscheider-Druck", "kPa", "abscheider"),
-    ("Abscheider-Unterlauf (Strom 10)", "m³/h", "abscheider"),
-    ("Stripper-Füllstand", "%", "stripper"),
-    ("Stripper-Druck", "kPa", "stripper"),
-    ("Stripper-Unterlauf (Strom 11)", "m³/h", "stripper"),
-    ("Stripper-Temperatur", "°C", "stripper"),
-    ("Stripper-Dampfmenge", "kg/h", "stripper"),
-    ("Kompressorleistung", "kW", "kompressor"),
-    ("Reaktor-Kühlwasser-Austrittstemperatur", "°C", "reaktor"),
-    ("Kondensator-Kühlwasser-Austrittstemperatur", "°C", "abscheider"),
+    ("A feed (stream 1)", "kscmh", "feeds"),
+    ("D feed (stream 2)", "kg/h", "feeds"),
+    ("E feed (stream 3)", "kg/h", "feeds"),
+    ("A and C feed (stream 4)", "kscmh", "feeds"),
+    ("Recycle flow (stream 8)", "kscmh", "compressor"),
+    ("Reactor feed rate (stream 6)", "kscmh", "reactor"),
+    ("Reactor pressure", "kPa", "reactor"),
+    ("Reactor level", "%", "reactor"),
+    ("Reactor temperature", "°C", "reactor"),
+    ("Purge rate (stream 9)", "kscmh", "separator"),
+    ("Separator temperature", "°C", "separator"),
+    ("Separator level", "%", "separator"),
+    ("Separator pressure", "kPa", "separator"),
+    ("Separator underflow (stream 10)", "m³/h", "separator"),
+    ("Stripper level", "%", "stripper"),
+    ("Stripper pressure", "kPa", "stripper"),
+    ("Stripper underflow (stream 11)", "m³/h", "stripper"),
+    ("Stripper temperature", "°C", "stripper"),
+    ("Stripper steam flow", "kg/h", "stripper"),
+    ("Compressor work", "kW", "compressor"),
+    ("Reactor cooling water outlet temperature", "°C", "reactor"),
+    ("Condenser cooling water outlet temperature", "°C", "separator"),
 ]
 _TEP_ANALYSIS = (
-    [("Reaktorzulauf-Analyse " + c, "reaktor") for c in "ABCDEF"]
-    + [("Spülgas-Analyse " + c, "abscheider") for c in "ABCDEFGH"]
-    + [("Produkt-Analyse " + c, "stripper") for c in "DEFGH"]
+    [("Reactor feed analysis " + c, "reactor") for c in "ABCDEF"]
+    + [("Purge gas analysis " + c, "separator") for c in "ABCDEFGH"]
+    + [("Product analysis " + c, "stripper") for c in "DEFGH"]
 )
 _TEP_MV = [
-    ("D-Zulauf Stellwert", "zulauf"),
-    ("E-Zulauf Stellwert", "zulauf"),
-    ("A-Zulauf Stellwert", "zulauf"),
-    ("A+C-Zulauf Stellwert", "zulauf"),
-    ("Kompressor-Rückführventil", "kompressor"),
-    ("Spülventil", "abscheider"),
-    ("Abscheider-Flüssigkeitsabzug", "abscheider"),
-    ("Stripper-Produktabzug", "stripper"),
-    ("Stripper-Dampfventil", "stripper"),
-    ("Reaktor-Kühlwassermenge", "reaktor"),
-    ("Kondensator-Kühlwassermenge", "abscheider"),
+    ("D feed flow valve", "feeds"),
+    ("E feed flow valve", "feeds"),
+    ("A feed flow valve", "feeds"),
+    ("A and C feed flow valve", "feeds"),
+    ("Compressor recycle valve", "compressor"),
+    ("Purge valve", "separator"),
+    ("Separator liquid flow valve", "separator"),
+    ("Stripper product flow valve", "stripper"),
+    ("Stripper steam valve", "stripper"),
+    ("Reactor cooling water flow", "reactor"),
+    ("Condenser cooling water flow", "separator"),
 ]
 
 TEP_TAGS: list[str] = [f"XMEAS{i}" for i in range(1, 42)] + [f"XMV{i}" for i in range(1, 12)]
@@ -95,13 +95,13 @@ TEP_TAGS: list[str] = [f"XMEAS{i}" for i in range(1, 42)] + [f"XMV{i}" for i in 
 
 def tep_asset_model() -> AssetModel:
     model = AssetModel(
-        name="Tennessee-Eastman-Prozess (Chemieanlage, Simulation)",
+        name="Tennessee Eastman Process (simulated chemical plant)",
         assets={
-            "zulauf": "Edukt-Zuläufe A, D, E, A+C",
-            "reaktor": "Exothermer Reaktor mit Kühlwasserkreis",
-            "abscheider": "Kondensator und Dampf-Flüssig-Abscheider",
-            "kompressor": "Rückführkompressor",
-            "stripper": "Stripper-Kolonne (Produktaufbereitung)",
+            "feeds": "Reactant feeds A, D, E, A+C",
+            "reactor": "Exothermic reactor with cooling water loop",
+            "separator": "Condenser and vapour-liquid separator",
+            "compressor": "Recycle compressor",
+            "stripper": "Stripper column (product recovery)",
         },
     )
     for i, (desc, unit, asset) in enumerate(_TEP_MEAS, start=1):
@@ -128,28 +128,28 @@ SKAB_TAGS = [
 
 def skab_asset_model() -> AssetModel:
     model = AssetModel(
-        name="SKAB Pumpenprüfstand (Wasserkreislauf)",
+        name="SKAB pump testbed (water circulation loop)",
         assets={
-            "pumpe": "Kreiselpumpe mit Elektromotor",
-            "hydraulik": "Rohrleitung, Ventile, Durchflussmessung",
-            "energie": "Abgeleitete Energiekennzahlen (Physikmodell)",
+            "pump": "Centrifugal pump with electric motor",
+            "hydraulics": "Piping, valves, flow measurement",
+            "energy": "Derived energy KPIs (physics model)",
         },
     )
     for tid, desc, unit, asset in [
-        ("Accelerometer1RMS", "Schwingung Pumpe (RMS, Sensor 1)", "g", "pumpe"),
-        ("Accelerometer2RMS", "Schwingung Pumpe (RMS, Sensor 2)", "g", "pumpe"),
-        ("Current", "Motorstrom", "A", "pumpe"),
-        ("Voltage", "Motorspannung", "V", "pumpe"),
-        ("Temperature", "Motortemperatur", "°C", "pumpe"),
-        ("Thermocouple", "Fluidtemperatur", "°C", "hydraulik"),
-        ("Pressure", "Förderdruck", "bar", "hydraulik"),
-        ("Volume Flow RateRMS", "Volumenstrom", "l/min", "hydraulik"),
+        ("Accelerometer1RMS", "Pump vibration (RMS, sensor 1)", "g", "pump"),
+        ("Accelerometer2RMS", "Pump vibration (RMS, sensor 2)", "g", "pump"),
+        ("Current", "Motor current", "A", "pump"),
+        ("Voltage", "Motor voltage", "V", "pump"),
+        ("Temperature", "Motor temperature", "°C", "pump"),
+        ("Thermocouple", "Fluid temperature", "°C", "hydraulics"),
+        ("Pressure", "Discharge pressure", "bar", "hydraulics"),
+        ("Volume Flow RateRMS", "Volume flow", "l/min", "hydraulics"),
     ]:
         model.add(Tag(tid, desc, unit, asset))
     for tid, desc, unit in [
-        ("P_el", "Elektrische Leistungsaufnahme (U·I)", "W"),
-        ("P_hyd", "Hydraulische Leistung (p·Q)", "W"),
-        ("P_el_residual", "Mehrverbrauch ggü. Physik-/Normalmodell", "W"),
+        ("P_el", "Electrical power input (U·I)", "W"),
+        ("P_hyd", "Hydraulic power (p·Q)", "W"),
+        ("P_el_residual", "Excess power vs. physics/normal model", "W"),
     ]:
-        model.add(Tag(tid, desc, unit, "energie", kind="derived"))
+        model.add(Tag(tid, desc, unit, "energy", kind="derived"))
     return model

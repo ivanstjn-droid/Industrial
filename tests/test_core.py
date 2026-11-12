@@ -42,14 +42,14 @@ def test_contributions_sum_to_one(plant):
 def test_describe_episode_reports_shift(plant):
     ep = next(e for e in plant.episodes if e["start_pos"] >= 290)
     d = plant.describe_episode(ep["id"])
-    top = d["verdaechtige_tags"][0]
-    assert top["tag"] == "T_out" and top["abweichung_sigma"] > 3
+    top = d["suspect_tags"][0]
+    assert top["tag"] == "T_out" and top["mean_deviation_sigma"] > 3
 
 
 def test_tep_asset_model_complete():
     m = tep_asset_model()
     assert len(m.tags) == 52
-    assert m.tag("XMEAS9").description == "Reaktortemperatur"
+    assert m.tag("XMEAS9").description == "Reactor temperature"
     assert m.tag("XMV10").kind == "manipulated"
 
 
@@ -73,8 +73,8 @@ def test_annualise():
 
 
 def test_knowledge_search():
-    hits = knowledge.search("Reaktortemperatur Kühlwasser steigt")
-    assert hits and "Kühlwasser" in hits[0]["titel"]
+    hits = knowledge.search("reactor temperature rising cooling water")
+    assert hits and "cooling water" in hits[0]["title"]
 
 
 def test_tool_schemas_are_strict():
@@ -85,7 +85,7 @@ def test_tool_schemas_are_strict():
 def test_execute_tools(plant):
     ep = plant.episodes[0]["id"]
     for name, args in [("plant_overview", {}), ("list_alarms", {}), ("get_alarm_details", {"alarm_id": ep}),
-                       ("get_tag_trend", {"tag": "T_out", "alarm_id": ep}), ("search_knowledge", {"query": "Pumpe"}),
+                       ("get_tag_trend", {"tag": "T_out", "alarm_id": ep}), ("search_knowledge", {"query": "pump"}),
                        ("estimate_energy_cost", {"delta_w": 500, "hours_per_year": 4000})]:
         assert execute_tool(plant, name, args)
 
@@ -94,7 +94,7 @@ def test_rule_based_report_without_api_key(plant, monkeypatch):
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.delenv("ANTHROPIC_AUTH_TOKEN", raising=False)
     out = investigate(plant, plant.episodes[0]["id"])
-    assert out["mode"] == "rule_based" and "## Belege" in out["report"]
+    assert out["mode"] == "rule_based" and "## Evidence" in out["report"]
 
 
 class FakeClient:
@@ -109,7 +109,7 @@ class FakeClient:
         if len(self.calls) == 1:
             block = SimpleNamespace(type="tool_use", id="tu_1", name="get_alarm_details", input={"alarm_id": 1})
             return SimpleNamespace(stop_reason="tool_use", content=[block])
-        return SimpleNamespace(stop_reason="end_turn", content=[SimpleNamespace(type="text", text="## Zusammenfassung\nT_out.")])
+        return SimpleNamespace(stop_reason="end_turn", content=[SimpleNamespace(type="text", text="## Summary\nT_out.")])
 
 
 def test_agent_loop_with_fake_client(plant):
@@ -128,7 +128,7 @@ def test_api_demo_plant(monkeypatch):
 
     c = TestClient(app)
     assert c.get("/").status_code == 200
-    assert c.get("/api/plants/demo").json()["alarme"] >= 1
+    assert c.get("/api/plants/demo").json()["alarms"] >= 1
     alarms = c.get("/api/plants/demo/alarms").json()
     assert c.get(f"/api/plants/demo/alarms/{alarms[0]['id']}").status_code == 200
     assert c.post(f"/api/plants/demo/alarms/{alarms[0]['id']}/investigate").json()["mode"] == "rule_based"

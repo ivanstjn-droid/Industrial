@@ -2,7 +2,7 @@
 
 **Physics-informed anomaly detection and AI-assisted root-cause analysis for German process and energy plants – MVP.**
 
-Anlagenwacht watches plant sensor data, raises alarms when the plant leaves its normal operating envelope, ranks the tags that most likely caused the deviation, translates energy waste into kWh / € / t CO₂, and lets an AI assistant (Claude) investigate each alarm against the plant's asset model and knowledge base – read-only, in German, with evidence.
+Anlagenwacht watches plant sensor data, raises alarms when the plant leaves its normal operating envelope, ranks the tags that most likely caused the deviation, translates energy waste into kWh / € / t CO₂, and lets an AI assistant (Claude) investigate each alarm against the plant's asset model and knowledge base – read-only, with evidence.
 
 ```
 Data (historian CSV, later OPC UA/MQTT)
@@ -12,7 +12,7 @@ Asset model ──► PCA monitor (T² + SPE) ──► Alarm episodes + contrib
    │                 ▲                              │
    │        physics residual (e.g. pump P_el)       ▼
    │                                       Investigation assistant (Claude, tool use)
-   └──────────────► knowledge base ───────► German report: evidence · causes · checks · €/kWh
+   └──────────────► knowledge base ───────► Report: evidence · causes · checks · €/kWh
 ```
 
 ## Quick start
@@ -54,13 +54,13 @@ These numbers are consistent with published PCA baselines. They are the floor to
 
 ```
 src/anlagenwacht/
-  assets.py          asset model (hierarchy, tags, units, German descriptions)
+  assets.py          asset model (hierarchy, tags, units, descriptions)
   datasets/          public dataset loaders (TEP, SKAB) with download cache
   detect/pca.py      PCA monitor, control limits, contributions, alarm episodes
   physics/           pump energy model, kWh/€/CO₂ conversion
   plant.py           plant workspace used by API and agent
   agent/             Claude investigator (tool use) + rule-based fallback
-  knowledge/         German troubleshooting knowledge base (markdown)
+  knowledge/         troubleshooting knowledge base (markdown)
   api.py, web/       FastAPI + single-page UI
   evaluate.py        benchmark harness → reports/
 ```

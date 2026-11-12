@@ -19,4 +19,4 @@ def test_skab_benchmark_quality():
     from anlagenwacht.evaluate import evaluate_skab
 
     r = evaluate_skab()
-    assert r["metrics"]["pca_sensoren_plus_physik"]["f1"] >= 0.70
+    assert r["metrics"]["pca_sensors_plus_physics"]["f1"] >= 0.70

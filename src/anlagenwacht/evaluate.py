@@ -35,7 +35,7 @@ def evaluate_tep(var_explained: float = 0.90, alpha: float = 0.99, persistence: 
         first = int(np.argmax(post)) if post.any() else None
         row = {
             "fault": f,
-            "beschreibung": FAULTS[f],
+            "description": FAULTS[f],
             "detection_rate": round(float(post.mean()), 3),
             "false_alarm_rate_prefault": round(float(alarm[:FAULT_ONSET_TEST].mean()), 3),
             "detection_delay_min": None if first is None else first * SAMPLE_MINUTES,
@@ -67,27 +67,27 @@ def evaluate_tep(var_explained: float = 0.90, alpha: float = 0.99, persistence: 
 
 def _tep_md(r: dict) -> str:
     lines = [
-        "# Benchmark: Tennessee-Eastman-Prozess",
+        "# Benchmark: Tennessee Eastman Process",
         "",
-        f"Modell: PCA-Monitor (T² + SPE), {r['config']['n_components']} Komponenten, α={r['config']['alpha']}, "
-        f"Persistenz {r['config']['persistence']} Samples. Trainiert nur auf Normalbetrieb (d00.dat).",
+        f"Model: PCA monitor (T² + SPE), {r['config']['n_components']} components, α={r['config']['alpha']}, "
+        f"persistence {r['config']['persistence']} samples. Trained on normal operation only (d00.dat).",
         "",
-        f"- **Fehlalarmrate Normalbetrieb (d00_te):** {r['false_alarm_rate_normal_test']:.1%}",
-        f"- **Mittlere Erkennungsrate** (ohne 3/9/15, in der Literatur als praktisch nicht erkennbar geltend): "
+        f"- **False-alarm rate, normal operation (d00_te):** {r['false_alarm_rate_normal_test']:.1%}",
+        f"- **Mean detection rate** (excluding faults 3/9/15, considered practically undetectable in the literature): "
         f"{r['mean_detection_rate_excl_3_9_15']:.1%}",
-        f"- **Ursachen-Ranking Treffer@5** (Störungen mit Literatur-Ursachenvariablen): {r['rca_hit_at_5']}",
+        f"- **Root-cause ranking hit@5** (faults with literature root-cause variables): {r['rca_hit_at_5']}",
         "",
-        "| Störung | Beschreibung | Erkennung | FAR vor Störung | Verzögerung (min) | Top-5 Tags | Treffer |",
+        "| Fault | Description | Detection | FAR before fault | Delay (min) | Top-5 tags | Hit |",
         "|---|---|---|---|---|---|---|",
     ]
     for f in r["faults"]:
         lines.append(
-            f"| {f['fault']} | {f['beschreibung']} | {f['detection_rate']:.1%} | {f['false_alarm_rate_prefault']:.1%} | "
+            f"| {f['fault']} | {f['description']} | {f['detection_rate']:.1%} | {f['false_alarm_rate_prefault']:.1%} | "
             f"{'–' if f['detection_delay_min'] is None else f['detection_delay_min']} | "
             f"{', '.join(f['rca_top5']) if f['rca_top5'] else '–'} | "
             f"{'–' if f['rca_hit'] is None else ('✓' if f['rca_hit'] else '✗')} |"
         )
-    lines += ["", "Hinweis: Die Ursachenvariablen sind aus der Literatur abgeleitet und keine offizielle Ground Truth."]
+    lines += ["", "Note: the root-cause variables are derived from the literature and are not an official ground truth."]
     return "\n".join(lines)
 
 
@@ -98,7 +98,7 @@ def evaluate_skab(train_rows: int = 400) -> dict:
     from anlagenwacht.plant import SKAB_FEATURES
 
     raw_cols = SKAB_FEATURES[:-1]
-    variants = {"pca_sensoren": raw_cols, "pca_sensoren_plus_physik": SKAB_FEATURES}
+    variants = {"pca_sensors": raw_cols, "pca_sensors_plus_physics": SKAB_FEATURES}
     totals = {v: {"tp": 0, "fp": 0, "fn": 0, "tn": 0} for v in variants}
     energy_rows = []
     experiments = load_experiments()
@@ -116,8 +116,8 @@ def evaluate_skab(train_rows: int = 400) -> dict:
             t["tn"] += int(((pred == 0) & (y == 0)).sum())
         res = full["P_el_residual"].to_numpy()[train_rows:]
         if (y == 1).any() and (y == 0).any():
-            energy_rows.append({"experiment": name, "mehrverbrauch_anomalie_w": float(res[y == 1].mean()),
-                                "mehrverbrauch_normal_w": float(res[y == 0].mean())})
+            energy_rows.append({"experiment": name, "excess_w_anomaly": float(res[y == 1].mean()),
+                                "excess_w_normal": float(res[y == 0].mean())})
 
     metrics = {}
     for v, t in totals.items():
@@ -134,27 +134,27 @@ def evaluate_skab(train_rows: int = 400) -> dict:
         "train_rows_per_experiment": train_rows,
         "metrics": metrics,
         "energy": {
-            "mean_excess_w_during_anomaly": round(float(e["mehrverbrauch_anomalie_w"].mean()), 2),
-            "mean_excess_w_during_normal": round(float(e["mehrverbrauch_normal_w"].mean()), 2),
-            "experiments_with_higher_draw_in_anomaly": f"{int((e['mehrverbrauch_anomalie_w'] > e['mehrverbrauch_normal_w']).sum())}/{len(e)}",
+            "mean_excess_w_during_anomaly": round(float(e["excess_w_anomaly"].mean()), 2),
+            "mean_excess_w_during_normal": round(float(e["excess_w_normal"].mean()), 2),
+            "experiments_with_higher_draw_in_anomaly": f"{int((e['excess_w_anomaly'] > e['excess_w_normal']).sum())}/{len(e)}",
         },
     }
     lines = [
-        "# Benchmark: SKAB Pumpenprüfstand",
+        "# Benchmark: SKAB pump testbed",
         "",
-        f"{result['experiments']} Versuche; je Versuch Training auf den ersten {train_rows} Samples (Normalbetrieb), "
-        "Bewertung punktweise auf dem Rest.",
+        f"{result['experiments']} experiments; each trained on its first {train_rows} samples (normal operation), "
+        "scored point-wise on the remainder.",
         "",
-        "| Variante | Precision | Recall | F1 | FAR | MAR |",
+        "| Variant | Precision | Recall | F1 | FAR | MAR |",
         "|---|---|---|---|---|---|",
     ] + [f"| {v} | {m['precision']} | {m['recall']} | {m['f1']} | {m['far']} | {m['mar']} |" for v, m in metrics.items()] + [
         "",
-        "## Energie (Physikmodell P_el ~ f(p·Q, Q))",
-        f"- Mittlerer Mehrverbrauch während Anomalien: {result['energy']['mean_excess_w_during_anomaly']} W",
-        f"- Mittlerer Mehrverbrauch im Normalbetrieb (Testteil): {result['energy']['mean_excess_w_during_normal']} W",
-        f"- Versuche mit höherem Verbrauch während Anomalie: {result['energy']['experiments_with_higher_draw_in_anomaly']}",
+        "## Energy (physics model P_el ~ f(p·Q, Q))",
+        f"- Mean excess power during anomalies: {result['energy']['mean_excess_w_during_anomaly']} W",
+        f"- Mean excess power during normal operation (test part): {result['energy']['mean_excess_w_during_normal']} W",
+        f"- Experiments with higher power draw during anomalies: {result['energy']['experiments_with_higher_draw_in_anomaly']}",
         "",
-        "Hinweis: Der Prüfstand ist klein (Watt-Bereich); relevant ist das Verfahren, nicht die absoluten Beträge.",
+        "Note: the testbed is small (watt range); the method matters here, not the absolute values.",
     ]
     _write("skab_benchmark", result, "\n".join(lines))
     return result

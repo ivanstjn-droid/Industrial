@@ -1,4 +1,4 @@
-"""Tiny keyword search over the German knowledge base (SOP / troubleshooting notes).
+"""Tiny keyword search over the knowledge base (SOP / troubleshooting notes).
 
 In a pilot this is replaced by the customer's own manuals, SOPs and shift logs.
 """
@@ -29,9 +29,9 @@ def search(query: str, k: int = 3) -> list[dict]:
     scored = []
     for title, body in _sections():
         words = _words(title + " " + body)
-        # prefix match so "Kühlwassermenge" also hits "kühlwasser"
+        # prefix match so "temperatures" also hits "temperature"
         hits = sum(1 for w in q if any(x.startswith(w[:6]) for x in words))
         if hits:
             scored.append((hits, title, body))
     scored.sort(key=lambda s: -s[0])
-    return [{"titel": t, "text": b} for _, t, b in scored[:k]]
+    return [{"title": t, "text": b} for _, t, b in scored[:k]]

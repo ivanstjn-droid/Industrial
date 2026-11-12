@@ -2,7 +2,7 @@
 
 ## Done (v0.1)
 - PCA monitor (T²/SPE) with persistence filter, normalised contributions, alarm episodes
-- Asset models with German descriptions for TEP and SKAB
+- Asset models with descriptions for TEP and SKAB
 - Pump energy physics model with residual → kWh/€/CO₂
 - Claude investigator with read-only, strict tools + rule-based offline fallback
 - FastAPI + web UI, benchmark harness, CI
@@ -24,6 +24,7 @@
 - [ ] Claude via EU region (AWS Bedrock Frankfurt / Vertex EU), configurable
 - [ ] Security pack: data-flow diagram, IEC 62443 zone design, GDPR data-processing agreement (AVV) template
 - [ ] Render Markdown reports in the UI; PDF export
+- [ ] German localisation (UI, reports, knowledge base, AI prompts) selectable per site
 
 ## Pilot (8–12 weeks on site)
 - One system (compressed-air station, pump group or heat supply), read-only access

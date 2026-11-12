@@ -36,7 +36,7 @@ def _plant(pid: str) -> Plant:
     try:
         return get_plant(pid)
     except (KeyError, ValueError) as exc:
-        raise HTTPException(404, f"Unbekannte Anlage {pid}") from exc
+        raise HTTPException(404, f"Unknown plant {pid}") from exc
 
 
 @app.get("/", response_class=HTMLResponse)

@@ -1,4 +1,4 @@
-"""Energy and cost translation – the numbers an Energiemanager reports under ISO 50001 / EnEfG."""
+"""Energy and cost translation – the numbers an energy manager reports under ISO 50001 / EnEfG."""
 
 from __future__ import annotations
 

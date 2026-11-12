@@ -13,12 +13,12 @@ import argparse
 def main() -> None:
     parser = argparse.ArgumentParser(prog="anlagenwacht")
     sub = parser.add_subparsers(dest="cmd", required=True)
-    b = sub.add_parser("benchmark", help="Benchmarks auf öffentlichen Datensätzen ausführen")
+    b = sub.add_parser("benchmark", help="Run benchmarks on public datasets")
     b.add_argument("which", nargs="?", default="all", choices=["tep", "skab", "all"])
-    i = sub.add_parser("investigate", help="Alarm untersuchen (Claude, sonst regelbasiert)")
-    i.add_argument("plant", help="z. B. demo, tep-4, skab-valve1-1")
+    i = sub.add_parser("investigate", help="Investigate an alarm (Claude, otherwise rule-based)")
+    i.add_argument("plant", help="e.g. demo, tep-4, skab-valve1-1")
     i.add_argument("alarm", type=int, nargs="?", default=None)
-    s = sub.add_parser("serve", help="API + Web-UI starten")
+    s = sub.add_parser("serve", help="Start API + web UI")
     s.add_argument("--host", default="127.0.0.1")
     s.add_argument("--port", type=int, default=8000)
     args = parser.parse_args()
@@ -33,12 +33,12 @@ def main() -> None:
 
         plant = get_plant(args.plant)
         if not plant.episodes:
-            print("Keine Alarme.")
+            print("No alarms.")
             return
         alarm = args.alarm or max(plant.episodes, key=lambda e: e["n_samples"] * e["peak_score"])["id"]
         result = investigate(plant, alarm)
         print(result["report"])
-        print(f"\n[Modus: {result['mode']}, Werkzeugaufrufe: {len(result['tool_calls'])}]")
+        print(f"\n[mode: {result['mode']}, tool calls: {len(result['tool_calls'])}]")
     elif args.cmd == "serve":
         import uvicorn
 
