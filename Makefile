@@ -2,7 +2,7 @@
 install:
 	pip install -e ".[dev]"
 test:
-	pytest
+	python -m pytest
 bench:
 	anlagenwacht benchmark all
 serve:
