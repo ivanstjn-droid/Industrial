@@ -66,7 +66,7 @@ async function loadPlant(p) {
   pid = p; aid = null; $('detail').innerHTML = ''; $('report').textContent = ''; $('inv').hidden = true;
   $('alarms').textContent = 'Loading…';
   const [s, sc, al] = await Promise.all([j(`/api/plants/${p}`), j(`/api/plants/${p}/scores`), j(`/api/plants/${p}/alarms`)]);
-  $('summary').textContent = `${s.plant} · ${s.samples} samples · ${s.alarms} alarms`;
+  $('summary').textContent = `${s.plant} · ${s.samples} samples · ${s.alarms} alarm${s.alarms === 1 ? '' : 's'}`;
   drawChart(sc);
   $('alarms').innerHTML = al.length ? al.map(a => `<div class="alarm" data-id="${a.id}">
       <b>#${a.id}</b> ${esc(a.start.slice(5,16))} · ${a.n_samples} pts · max ${a.peak_score}×<br>
